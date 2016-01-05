@@ -46,8 +46,8 @@ app.directive('autocomplete', function() {
         if (oldValue === newValue || (!oldValue && $scope.initLock)) {
           return;
         }
-
-        if(watching && typeof $scope.searchParam !== 'undefined' && $scope.searchParam !== null) {
+        
+        if(watching && $scope.searchParam) {
           $scope.completing = true;
           $scope.searchFilter = $scope.searchParam;
           $scope.selectedIndex = -1;
@@ -128,6 +128,8 @@ app.directive('autocomplete', function() {
           if(!scope.searchParam){
             setTimeout(function() {
               scope.completing = true;
+              scope.searchFilter = scope.searchParam;
+
               scope.$apply();
             }, 200);
           }
@@ -163,9 +165,9 @@ app.directive('autocomplete', function() {
         var keycode = e.keyCode || e.which;
 
         var l = angular.element(this).find('li').length;
-
+        
         // this allows submitting forms by pressing Enter in the autocompleted field
-        if(!scope.completing || l == 0) return;
+        if(!scope.completing) return;
 
         // implementation of the up and down movement in the list of suggestions
         switch (keycode){
@@ -220,7 +222,7 @@ app.directive('autocomplete', function() {
               }
             } else {
               if(keycode == key.enter) {
-                scope.select();
+                scope.select(scope.searchParam);
               }
             }
             scope.setIndex(-1);
@@ -252,7 +254,7 @@ app.directive('autocomplete', function() {
           <ul ng-show="completing && (suggestions | filter:searchFilter).length > 0">\
             <li\
               suggestion\
-              ng-repeat="suggestion in suggestions | filter:searchFilter | orderBy:\'toString()\' track by $index"\
+              ng-repeat="suggestion in suggestions | filter:searchFilter track by $index"\
               index="{{ $index }}"\
               val="{{ suggestion }}"\
               ng-class="{ active: ($index === selectedIndex) }"\
